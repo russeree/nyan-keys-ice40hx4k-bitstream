@@ -1,9 +1,14 @@
 # Clocks
-set_io -pullup no  clk_g_i        21 #Icestick 12 Mhz clk
+set_io -pullup yes  clk_g_i       21 #Icestick 12 Mhz clk
 # LEDs
-set_io led_o                      95
+set_io leds_o[0]                  95
+set_io leds_o[1]                  97
+set_io leds_o[2]                  96
+set_io leds_o[3]                  98
+set_io leds_o[4]                  99
+
 # Interface
-set_io -pullup yes rstn_g_i       44
+set_io -pullup no  rstn_g_i       44
 set_io -pullup no  spi_cs_g_i     45
 set_io -pullup no  spi_mosi_g_i   47
 set_io -pullup no  spi_miso_g_o   48
@@ -32,7 +37,7 @@ set_io -pullup yes keys_i_g[19]   41
 set_io -pullup yes keys_i_g[20]   42
 set_io -pullup yes keys_i_g[21]   144
 set_io -pullup yes keys_i_g[22]   43
-set_io -pullup yes keys_i_g[23]   98
+set_io -pullup yes keys_i_g[23]   141
 set_io -pullup yes keys_i_g[24]   49
 set_io -pullup yes keys_i_g[25]   50
 set_io -pullup yes keys_i_g[26]   52
@@ -47,7 +52,7 @@ set_io -pullup yes keys_i_g[34]   73
 set_io -pullup yes keys_i_g[35]   74
 set_io -pullup yes keys_i_g[36]   75
 set_io -pullup yes keys_i_g[37]   76
-set_io -pullup yes keys_i_g[38]   97
+set_io -pullup yes keys_i_g[38]   142
 set_io -pullup yes keys_i_g[39]   78
 set_io -pullup yes keys_i_g[40]   79
 set_io -pullup yes keys_i_g[41]   80
@@ -80,5 +85,3 @@ set_io -pullup yes keys_i_g[67]   135
 set_io -pullup yes keys_i_g[68]   136
 set_io -pullup yes keys_i_g[69]   138
 set_io -pullup yes keys_i_g[70]   139
-set_io -pullup yes keys_i_g[71]   141
-set_io -pullup yes keys_i_g[72]   142

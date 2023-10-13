@@ -6,9 +6,9 @@
 
 module spi_keys #(parameter NUM_KEYS = 68) (
     // Globals
-    output reg led_o,
-    input wire clk_g_i,
-    input wire rstn_g_i,
+    output wire [4:0] leds_o,
+    input  wire       clk_g_i,
+    input  wire       rstn_g_i,
 
     // SPI Interface - Global
     input  wire spi_clk_g_i,
@@ -35,9 +35,9 @@ module spi_keys #(parameter NUM_KEYS = 68) (
     wire [7:0]                   spi_rx_byte;
 
     // Internal registers
-    reg [GROUPS_WIDTH-1:0] groups_select;
-    reg [7:0]              spi_tx_byte;
-    reg [7:0]              spi_synch_ram [0:511];
+    reg  [GROUPS_WIDTH-1:0] groups_select;
+    wire [7:0]              spi_tx_byte;
+    reg  [7:0]              spi_synch_ram [0:511];
 
     // Keyboard keys interface
     keys #(NUM_KEYS) keys_interface (
@@ -59,19 +59,6 @@ module spi_keys #(parameter NUM_KEYS = 68) (
         .mosi (spi_mosi_g_i),
         .ss   (spi_cs_g_i)
     );
-
-    always @(posedge clk_g_i) begin
-        led_o <= 1'b1;
-    end
-
-    /**
-     * Every clock cycle read from the address that has been locked in
-     */
-    always @(posedge clk_g_i) begin
-        if (spi_rx_valid) begin
-            spi_tx_byte <= spi_synch_ram[spi_rx_byte];
-        end
-    end
 
     /**
      * Creates a running selection for the mux output into the bram write
@@ -97,21 +84,25 @@ module spi_keys #(parameter NUM_KEYS = 68) (
     end
 
     /**
-     *12Mhz to 800hz Frequency Divider
+     * 12Mhz to 800hz Frequency Divider - Used for input debouncing
      */
     reg [12:0] counter = 0;
     reg key_clk;
     always @(posedge clk_g_i) begin
-        if (counter == 13'd7499) begin // 1 less than our count of 7,500
-            key_clk <= ~key_clk;   // Toggle the output clock
-            counter <= 0;              // Reset the counter
+        if (rstn_g_i == 1'b0)begin
+            counter <= 13'b0;
+        end else if (counter == 13'd7499) begin // 1 less than our count of 7,500
+            key_clk <= ~key_clk;                // Toggle the output clock
+            counter <= 0;                       // Reset the counter
         end else begin
-            counter <= counter + 1;    // Increment the counter
+            counter <= counter + 1;             // Increment the counter
         end
     end
 
     // Create a mux to the input of the bram
     assign keys_bram_mux_o_int = keys_pad[groups_select*8 +: 8];
     assign keys_pad_bits = {KEYS_PAD-GROUPS-1{1'b0}};
+    assign leds_o = 5'b00001;
+    assign spi_tx_byte = spi_synch_ram[spi_rx_byte];
 
 endmodule

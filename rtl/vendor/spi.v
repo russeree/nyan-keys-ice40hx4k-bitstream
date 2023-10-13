@@ -35,7 +35,7 @@ module mojo_spi_slave(
         bit_ct_d = bit_ct_q;
         dout_d = dout_q;
 
-        if (ss_q) begin                         // if slave select is high (deselcted)
+        if (ss_q) begin                         // if slave select is high (deselected)
             bit_ct_d = 3'b0;                    // reset bit counter
             data_d = din;                       // read in data
             miso_d = data_q[7];                 // output MSB
@@ -43,14 +43,15 @@ module mojo_spi_slave(
             if (!sck_old_q && sck_q) begin      // rising edge
                 data_d = {data_q[6:0], mosi_q}; // read data in and shift
                 bit_ct_d = bit_ct_q + 1'b1;     // increment the bit counter
-            if (bit_ct_q == 3'b111) begin       // if we are on the last bit
-                dout_d = {data_q[6:0], mosi_q}; // output the byte
-                done_d = 1'b1;                  // set transfer done flag
-                data_d = din;                   // read in new byte
+                if (bit_ct_q == 3'b111) begin   // if we are on the last bit
+                    dout_d = {data_q[6:0], mosi_q}; // output the byte
+                    done_d = 1'b1;                  // set transfer done flag
+                    data_d = din;                   // immediately load the next byte
+                    miso_d = din[7];                // immediately output the MSB of next byte
+                end
+            end else if (sck_old_q && !sck_q) begin // falling edge
+                miso_d = data_q[7];                 // output MSB
             end
-        end else if (sck_old_q && !sck_q) begin // falling edge
-            miso_d = data_q[7];                 // output MSB
-        end
         end
     end
 
