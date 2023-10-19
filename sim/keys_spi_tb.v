@@ -31,7 +31,7 @@ module tb_spi_keys;
 
     // Clock generation
     always begin
-        #1 clk_g_i = ~clk_g_i;
+        #8 clk_g_i = ~clk_g_i;
     end
 
     // Test sequence
@@ -64,9 +64,9 @@ module tb_spi_keys;
         for (integer i = 0; i < NUM_KEYS; i = i + 1) begin
             for (integer j = 7; j >= 0; j = j - 1) begin
                 spi_mosi_g_i = i[j];
-                #7;
+                #500;
                 spi_clk_g_i = ~spi_clk_g_i;
-                #7;
+                #500;
                 spi_clk_g_i = ~spi_clk_g_i;
             end
             $display("SPI Read: Address %d, Data %b", i, spi_miso_g_o);

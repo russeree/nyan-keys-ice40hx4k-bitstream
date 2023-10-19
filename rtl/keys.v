@@ -1,4 +1,4 @@
-module keys #(parameter keys = 89) (
+module keys #(parameter keys = 61) (
     input             clk_i,
     input             rst_n_i,
     input  [keys-1:0] keys_i,
@@ -6,7 +6,7 @@ module keys #(parameter keys = 89) (
     );
 
     // each key is represented by a 2-bit register
-    reg [1:0] counter   [keys-1:0];
+    reg [2:0] counter   [keys-1:0];
     reg [0:0] direction [keys-1:0];
 
     integer key;
@@ -17,9 +17,9 @@ module keys #(parameter keys = 89) (
         for (key = 0; key < keys; key = key + 1) begin
             if (rst_n_i == 1'b0) begin
                 counter[key] <= 1'b0;
-            end else if (keys_i[key] == 1'b1 && counter[key] != 2'b11) begin
+            end else if (keys_i[key] == 1'b1 && counter[key] != 3'b111) begin
                 counter[key] <= counter[key] + 1'b1;
-            end else if (counter[key] != 2'b00) begin
+            end else if (counter[key] != 3'b000) begin
                 counter[key] <= counter[key] - 1'b1;
             end
         end
@@ -30,9 +30,9 @@ module keys #(parameter keys = 89) (
         for (key = 0; key < keys; key = key + 1) begin
             if (rst_n_i == 1'b0) begin
                 direction[key] <= 1'b1;
-            end else if (counter[key] == 2'b00 && direction[key] == 1'b1) begin
+            end else if (counter[key] == 3'b000 && direction[key] == 1'b1) begin
                 direction[key] <= 1'b0;
-            end else if (counter[key] == 2'b11 && direction[key] == 1'b0) begin
+            end else if (counter[key] == 3'b111 && direction[key] == 1'b0) begin
                 direction[key] <= 1'b1;
             end
         end
@@ -45,4 +45,5 @@ module keys #(parameter keys = 89) (
             assign keys_o[trace] = direction[trace];
         end
     endgenerate
+
 endmodule
