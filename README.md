@@ -26,8 +26,16 @@ Each key switch in your physical design will generate one key switch core. The k
 that is used to read the keys state and perform debouncing. Since all mechanical switches will have some form of bounce to them.
 This design uses a tunable 3 bit counter and a 'direction vector' store the output state of each key.
 
+Switches are considered active low and this design leverages the interal pull resistors that are available on the 
+outputs of the Lattice Ice40hx series ICs. 
+
+| Key State | Logic Level |
+| --------- | ----------- |
+| Depressed | Low         |
+| Released  | High        |
+
 The debounce is handeled by an up down counter on each key. The counter starts at zero. When the key is depressed the counter will
-increment by one. Once the counter has reached the top the direction if it is not already depressed _1'b1_ will change to a _1'b1_.
+increment by one each clock cycle. Once the counter has reached the top. The direction register if it is not already depressed _1'b1_ will change to a _1'b1_.
 As long as the key is depressed the counter will remain at the top. If the logic for the key switches low the counter begins to count
 down but the state is not allowed to change until the switch hits a 0 value the prevents noise from triggering a state switch.
 
