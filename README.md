@@ -62,7 +62,7 @@ This prevents noise or a bounce from triggering a key press.
 ### FPGA Limits
 
 | FPGA           | Debounce Counter |
-| __-------------- | ---------------- |
+| -------------- | ---------------- |
 | Ice40HX1k      | 3 bit            |
 | Ice40HX4k      | 8 bit            |
 
