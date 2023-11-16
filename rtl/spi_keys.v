@@ -8,7 +8,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     // Globals
     input  wire clk_g_i,
     input  wire rstn_g_i,
-    output wire keys_valid, // Active high valid operations wire.
+    output wire keys_valid_o, // Active high valid operations wire.
 
     // SPI Interface - Global
     input  wire spi_clk_g_i,
@@ -145,9 +145,9 @@ module spi_keys #(parameter NUM_KEYS = 61) (
      */
     always @(posedge clk_g_int_buf) begin
         if (rstn_g_i == 1'b0) begin
-            keys_valid = 1'b0;
-        end else begin
             keys_valid = 1'b1;
+        end else begin
+            keys_valid = 1'b0;
         end
     end
 
@@ -176,10 +176,9 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     // Create a mux to the input of the bram
     assign keys_bram_mux_o_int = keys_pad[groups_select*8 +: 8];
     assign keys_pad_bits = {KEYS_PAD-GROUPS-1{1'b0}};
+    assign keys_valid_o = keys_valid;
     assign spi_miso_g_o = sdo_int;
-    
     /* Enable after validation of the yosys/nextpnr bitstream */
-
     //assign spi_miso_g_o = (spi_cs_g_i) ? 1'bz : sdo_int;
 
 endmodule
