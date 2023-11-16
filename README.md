@@ -13,13 +13,12 @@ on planet earth. The additional performance is extracted through four means.
  - Ultra fast SPI based serialization (1.6Mhz Tested)
  - nKRO - Though standard now it's nice to have becuase of the parallel interface
 
-This design is targeted at 2 primary groups.
+This design is targeted tward few primary groups.
 
  - __Gamers__ For the lowest possible latency.
  - __Power Users__ For the programability.
  - __Hobbyists__ For the hacks.
  - __Non standard layouts__ For users that need to be able to create a custom layout
-
 
 ## FPGA IP
 

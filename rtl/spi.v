@@ -1,4 +1,4 @@
-module mojo_spi_slave (
+module nyan_spi_slave (
     // SPI signals
     input            ss,
     input            mosi,

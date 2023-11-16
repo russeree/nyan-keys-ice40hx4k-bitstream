@@ -5,7 +5,7 @@ module keys #(parameter keys = 61) (
     output [keys-1:0] keys_o
     );
 
-    // each key is represented by a 2-bit register
+    // each key is represented by a 7-bit register
     reg [7:0] counter   [keys-1:0];
     reg [0:0] direction [keys-1:0];
 

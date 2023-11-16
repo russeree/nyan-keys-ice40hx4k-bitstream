@@ -8,11 +8,12 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     // Globals
     input  wire clk_g_i,
     input  wire rstn_g_i,
+    output wire keys_valid, // Active high valid operations wire.
 
     // SPI Interface - Global
     input  wire spi_clk_g_i,
     input  wire spi_mosi_g_i,
-    inout  wire spi_miso_g_o,
+    output wire spi_miso_g_o,
     input  wire spi_cs_g_i,
 
     // Key Interface - Global
@@ -43,8 +44,9 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     reg [GROUPS_WIDTH-1:0] groups_select;
     reg [7:0]              spi_tx_byte;
     reg [7:0]              spi_synch_ram [0:511];
-    reg [17:0]             key_clk_counter = 0;
+    reg [8:0]              key_clk_counter = 0;
     reg                    key_clk;
+    reg                    keys_valid;
 
     // Keyboard keys interface
     keys #(NUM_KEYS) keys_interface (
@@ -55,7 +57,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     );
 
     // SPI module - slave mode
-    mojo_spi_slave spi_slave (
+    nyan_spi_slave spi_slave (
         .rst  (rstn_g_i),
         .clk  (clk_g_i),
         .done (spi_rx_valid),
@@ -88,12 +90,12 @@ module spi_keys #(parameter NUM_KEYS = 61) (
         assign clk_g_int_buf = clk_g_i;
     `else
         /**
-         * Core clock generation
+         * Core clock generation - 120MHZ
          */
         SB_PLL40_CORE #(
             .FEEDBACK_PATH("SIMPLE"),
             .DIVR(4'b0000),       // DIVR =  0
-            .DIVF(7'b1001111),    // DIVF = 77
+            .DIVF(7'b1001111),    // DIVF = 79
             .DIVQ(3'b011),        // DIVQ =  3
             .FILTER_RANGE(3'b001) // FILTER_RANGE = 1
         ) g_pll (
@@ -139,6 +141,17 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     end
 
     /**
+     * Nyan Keys IP is functional and bitstream has been loaded
+     */
+    always @(posedge clk_g_int_buf) begin
+        if (rstn_g_i == 1'b0) begin
+            keys_valid = 1'b0;
+        end else begin
+            keys_valid = 1'b1;
+        end
+    end
+
+    /**
      * Take the output of the mux and write it to memory each clock cycle
      */
     always @(posedge clk_g_int_buf) begin
@@ -152,7 +165,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
         if (rstn_g_i == 1'b0) begin
             key_clk_counter <= 18'b0;
             key_clk <= 1'b0;
-        end else if (key_clk_counter == 18'd2) begin           // 1 less than our count of 7,500
+        end else if (key_clk_counter == 9'd469) begin          // just slightly more than 2ms/256 steps
             key_clk <= ~key_clk;                               // Toggle the output clock
             key_clk_counter <= 0;                              // Reset the counter
         end else begin
@@ -163,6 +176,10 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     // Create a mux to the input of the bram
     assign keys_bram_mux_o_int = keys_pad[groups_select*8 +: 8];
     assign keys_pad_bits = {KEYS_PAD-GROUPS-1{1'b0}};
-    assign spi_miso_g_o = (spi_cs_g_i) ? 1'bz : sdo_int;
+    assign spi_miso_g_o = sdo_int;
+    
+    /* Enable after validation of the yosys/nextpnr bitstream */
+
+    //assign spi_miso_g_o = (spi_cs_g_i) ? 1'bz : sdo_int;
 
 endmodule
