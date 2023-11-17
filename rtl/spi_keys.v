@@ -59,7 +59,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     // SPI module - slave mode
     nyan_spi_slave spi_slave (
         .rst  (rstn_g_i),
-        .clk  (clk_g_i),
+        .clk  (clk_g_int_buf),
         .done (spi_rx_valid),
         .din  (spi_tx_byte),
         .dout (spi_rx_byte),
@@ -116,10 +116,12 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     /**
      * Every clock cycle read from the address that has been locked in
      */
-    always @(posedge clk_g_int_buf or negedge rstn_g_i) begin
+    always @(posedge clk_g_int_buf  or negedge rstn_g_i) begin
         if (rstn_g_i == 1'b0) begin
             spi_tx_byte <= 8'h00;
-        end else if (spi_rx_valid) begin
+        end else if (spi_cs_g_i) begin
+            spi_tx_byte <= 8'h00;
+        end else if (spi_tx_valid) begin
             spi_tx_byte <= spi_synch_ram[spi_rx_byte];
         end
     end
@@ -155,7 +157,9 @@ module spi_keys #(parameter NUM_KEYS = 61) (
      * Take the output of the mux and write it to memory each clock cycle
      */
     always @(posedge clk_g_int_buf) begin
-        spi_synch_ram[groups_select] <= keys_bram_mux_o_int;
+        if (spi_rx_valid == 1'b0) begin
+            spi_synch_ram[groups_select] <= keys_bram_mux_o_int;
+        end
     end
 
     /**
@@ -177,8 +181,6 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     assign keys_bram_mux_o_int = keys_pad[groups_select*8 +: 8];
     assign keys_pad_bits = {KEYS_PAD-GROUPS-1{1'b0}};
     assign keys_valid_o = keys_valid;
-    assign spi_miso_g_o = sdo_int;
-    /* Enable after validation of the yosys/nextpnr bitstream */
-    //assign spi_miso_g_o = (spi_cs_g_i) ? 1'bz : sdo_int;
+    assign spi_miso_g_o = (spi_cs_g_i) ? 1'bz : sdo_int;
 
 endmodule
