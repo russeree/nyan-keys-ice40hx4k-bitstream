@@ -26,7 +26,7 @@ FPGA IP is designed to be build using Yosys and Nextpnr. Functional and tested o
 The IP is designed and seperated into 3 main parts.
 
  - Key switch cores keys.v)
- - SPI core (MODE 1) COPL=0, CPHA=1 (spi.v)
+ - SPI core (MODE 0) COPL=0, CPHA=0 (spi.v)
  - Global glue logic (spi_keys.v)
 
 ### Key Switching Core
