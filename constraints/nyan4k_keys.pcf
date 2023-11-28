@@ -1,0 +1,75 @@
+# Clocks
+set_io -pullup no   clk_g_i       21  #12 Mhz clk
+
+# Interface - SPI Slave Mode 1 (CPOL=0 CPHA=1)
+set_io -pullup no  rstn_g_i       26  #FPGA Reset
+set_io -pullup no  spi_cs_g_i     28  #SPI Slave Select
+set_io -pullup no  spi_mosi_g_i   29  #SDI (Master Out Slave In)
+set_io -pullup no  spi_miso_g_o   31  #SDO (Master In Slave Out)
+set_io -pullup no  spi_clk_g_i    32  #SCL (SPI Clock Line)
+
+# Status Signals
+set_io -pullup no  keys_valid_o   67  #Convert SPI SDO to a status signal
+
+# Key Switches
+set_io -pullup yes keys_i_g[0]    1   #ESC
+set_io -pullup yes keys_i_g[1]    2   #TAB
+set_io -pullup yes keys_i_g[2]    3   #CAPS
+set_io -pullup yes keys_i_g[3]    4   #SHIFT
+set_io -pullup yes keys_i_g[4]    7   #L_CTRL
+set_io -pullup yes keys_i_g[5]    8   #1
+set_io -pullup yes keys_i_g[6]    9   #WIN
+set_io -pullup yes keys_i_g[7]    10  #LALT
+set_io -pullup yes keys_i_g[8]    11  #Q
+set_io -pullup yes keys_i_g[9]    12  #A
+set_io -pullup yes keys_i_g[10]   19  #Z
+set_io -pullup yes keys_i_g[11]   20  #2
+set_io -pullup yes keys_i_g[12]   22  #W
+set_io -pullup yes keys_i_g[13]   23  #S
+set_io -pullup yes keys_i_g[14]   24  #X
+set_io -pullup yes keys_i_g[15]   25  #C
+set_io -pullup yes keys_i_g[16]   34  #D
+set_io -pullup yes keys_i_g[17]   73  #K
+set_io -pullup yes keys_i_g[18]   74  #I
+set_io -pullup yes keys_i_g[19]   75  #8
+set_io -pullup yes keys_i_g[20]   76  #L_ANGLE_BRACKET
+set_io -pullup yes keys_i_g[21]   78  #L
+set_io -pullup yes keys_i_g[22]   79  #O
+set_io -pullup yes keys_i_g[23]   80  #9
+set_io -pullup yes keys_i_g[24]   81  #R_ANGLE_BRACKET
+set_io -pullup yes keys_i_g[25]   87  #COLON
+set_io -pullup yes keys_i_g[26]   88  #P
+set_io -pullup yes keys_i_g[27]   90  #0
+set_io -pullup yes keys_i_g[28]   91  #?
+set_io -pullup yes keys_i_g[29]   93  #L_SQUARE_BRACKET
+set_io -pullup yes keys_i_g[30]   94  #R_WIN
+set_io -pullup yes keys_i_g[31]   95  #FN
+set_io -pullup yes keys_i_g[32]   96  #MINUS
+set_io -pullup yes keys_i_g[33]   97  #QUOTE
+set_io -pullup yes keys_i_g[34]   98  #KEY_MENU
+set_io -pullup yes keys_i_g[35]   99  #R_SQUARE_BRACKET
+set_io -pullup yes keys_i_g[36]   101 #PLUS
+set_io -pullup yes keys_i_g[37]   102 #R_SHIFT
+set_io -pullup yes keys_i_g[38]   104 #ENTER
+set_io -pullup yes keys_i_g[39]   105 #SLASH
+set_io -pullup yes keys_i_g[40]   106 #BACKSPACE
+set_io -pullup yes keys_i_g[41]   107 #R_CTRL
+set_io -pullup yes keys_i_g[42]   37  #E
+set_io -pullup yes keys_i_g[43]   38  #3
+set_io -pullup yes keys_i_g[44]   39  #V
+set_io -pullup yes keys_i_g[45]   41  #F
+set_io -pullup yes keys_i_g[46]   42  #R
+set_io -pullup yes keys_i_g[47]   43  #4
+set_io -pullup yes keys_i_g[48]   44  #SPACE
+set_io -pullup yes keys_i_g[49]   45  #B
+set_io -pullup yes keys_i_g[50]   47  #G
+set_io -pullup yes keys_i_g[51]   48  #T
+set_io -pullup yes keys_i_g[52]   18  #5
+set_io -pullup yes keys_i_g[53]   16  #H
+set_io -pullup yes keys_i_g[54]   56  #Y
+set_io -pullup yes keys_i_g[55]   17  #6
+set_io -pullup yes keys_i_g[56]   60  #N
+set_io -pullup yes keys_i_g[57]   61  #J
+set_io -pullup yes keys_i_g[58]   62  #U
+set_io -pullup yes keys_i_g[59]   63  #7
+set_io -pullup yes keys_i_g[60]   64  #M

@@ -50,7 +50,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
 
     // Keyboard keys interface
     keys #(NUM_KEYS) keys_interface (
-        .clk_i   (key_clk),
+        .clk_i   (~pll_locked),
         .rst_n_i (rstn_g_i),
         .keys_i  (keys_i_g),
         .keys_o  (keys)
@@ -58,7 +58,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
 
     // SPI module - slave mode
     nyan_spi_slave spi_slave (
-        .rst  (rstn_g_i),
+        .rst  (~pll_locked),
         .clk  (clk_g_int_buf),
         .done (spi_rx_valid),
         .din  (spi_tx_byte),
@@ -121,7 +121,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
             spi_tx_byte <= 8'h00;
         end else if (spi_cs_g_i) begin
             spi_tx_byte <= 8'h00;
-        end else if (spi_tx_valid) begin
+        end else if (spi_rx_valid) begin
             spi_tx_byte <= spi_synch_ram[spi_rx_byte];
         end
     end
