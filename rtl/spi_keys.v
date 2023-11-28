@@ -44,13 +44,13 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     reg [GROUPS_WIDTH-1:0] groups_select;
     reg [7:0]              spi_tx_byte;
     reg [7:0]              spi_synch_ram [0:511];
-    reg [8:0]              key_clk_counter = 0;
+    reg [17:0]             key_clk_counter = 0;
     reg                    key_clk;
     reg                    keys_valid;
 
     // Keyboard keys interface
     keys #(NUM_KEYS) keys_interface (
-        .clk_i   (~pll_locked),
+        .clk_i   (key_clk),
         .rst_n_i (rstn_g_i),
         .keys_i  (keys_i_g),
         .keys_o  (keys)
@@ -58,7 +58,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
 
     // SPI module - slave mode
     nyan_spi_slave spi_slave (
-        .rst  (~pll_locked),
+        .rst  (rstn_g_i),
         .clk  (clk_g_int_buf),
         .done (spi_rx_valid),
         .din  (spi_tx_byte),
@@ -116,12 +116,12 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     /**
      * Every clock cycle read from the address that has been locked in
      */
-    always @(posedge clk_g_int_buf  or negedge rstn_g_i) begin
+    always @(posedge spi_rx_valid  or negedge rstn_g_i) begin
         if (rstn_g_i == 1'b0) begin
             spi_tx_byte <= 8'h00;
         end else if (spi_cs_g_i) begin
             spi_tx_byte <= 8'h00;
-        end else if (spi_rx_valid) begin
+        end else begin
             spi_tx_byte <= spi_synch_ram[spi_rx_byte];
         end
     end
@@ -169,7 +169,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
         if (rstn_g_i == 1'b0) begin
             key_clk_counter <= 18'b0;
             key_clk <= 1'b0;
-        end else if (key_clk_counter == 9'd469) begin          // just slightly more than 2ms/256 steps
+        end else if (key_clk_counter == 18'd939) begin         // just slightly more than 4ms/ @ 120MHz w/ 256 bitcounters
             key_clk <= ~key_clk;                               // Toggle the output clock
             key_clk_counter <= 0;                              // Reset the counter
         end else begin
