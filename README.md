@@ -2,7 +2,6 @@
 
 An FPGA based mechanical keybaord controller design based around the Lattice ice40hx series of FPGA chips.
 
-
 ## Why?
 
 The biggest question to be asked is why? The answer is simple. A quest to create the most performant keyboard
@@ -13,7 +12,7 @@ on planet earth. The additional performance is extracted through four means.
  - Ultra fast SPI based serialization (1.6Mhz Tested)
  - nKRO - Though standard now it's nice to have becuase of the parallel interface
 
-This design is targeted tward few primary groups.
+This design is targeted toward few primary groups.
 
  - __Gamers__ For the lowest possible latency.
  - __Power Users__ For the programability.
@@ -25,7 +24,7 @@ This design is targeted tward few primary groups.
 FPGA IP is designed to be build using Yosys and Nextpnr. Functional and tested on the Lattice ICE40HX1K 144TQFP.
 The IP is designed and seperated into 3 main parts.
 
- - Key switch cores keys.v)
+ - Key switch cores (keys.v)
  - SPI core (MODE 0) COPL=0, CPHA=0 (spi.v)
  - Global glue logic (spi_keys.v)
 
