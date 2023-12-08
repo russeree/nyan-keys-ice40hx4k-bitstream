@@ -9,7 +9,7 @@ on planet earth. The additional performance is extracted through four means.
 
  - Per key programmable debounce counters (8 bit)
  - Per key parallel input _All keys are parallel without a scanning matrix_
- - Ultra fast SPI based serialization (1.6Mhz Tested)
+ - Ultra fast SPI based serialization (12.25Mhz Tested)
  - nKRO - Though standard now it's nice to have becuase of the parallel interface
 
 This design is targeted toward few primary groups.
@@ -21,7 +21,7 @@ This design is targeted toward few primary groups.
 
 ## FPGA IP
 
-FPGA IP is designed to be build using Yosys and Nextpnr. Functional and tested on the Lattice ICE40HX1K 144TQFP.
+FPGA IP is designed to be build using [Yosys](https://github.com/YosysHQ/yosys) and [Nextpnr](https://github.com/YosysHQ/nextpnr). This parallel keys interface has been validated on the Lattice ICE40HX1K and ICE40HX4K 144TQFP FPGAs.
 The IP is designed and seperated into 3 main parts.
 
  - Key switch cores (keys.v)
@@ -37,9 +37,8 @@ to settle. _As a real world example when you press a Cherry MX Blue/Green switch
 stopped bouncing between high and low._ Removing debouncing logic on a keyboard would have the effect of the user seeing
 double key presses.
 
-This design uses a tunable 8 bit counter and a 'direction vector' store the output state of each key.
-
-Switches are considered active low and this design leverages the interal pull resistors that are available on the 
+In it's simplest form this design outputs a one hot vector that represents the states of each key as 0 or 1 (_high_ or _low_) and send that over a SPI slave interface to the masteter
+as often as it can be requested. Switches are considered active low and this design leverages the interal pull resistors that are available on the 
 outputs of the Lattice Ice40hx series ICs.
 
  - __Key state__ - Represents the physical key. [Pressed/Released]
@@ -51,11 +50,14 @@ outputs of the Lattice Ice40hx series ICs.
 | Depressed | Low         | Low             |
 | Released  | High        | High            |
 
-The debounce is handeled by an up down counter in each key core. The counter starts at zero. When the key is depressed the counter will
-increment by one each clock cycle while the key is pressed. The inverse is also true when a key is released. Once the counter has reached the top.
-The direction register if it is not already depressed _1'b1_ will change to a _1'b1_. As long as the key is depressed the counter will remain at the top.
-When the key is released or even in a glitch counter begins to count down but the state is not allowed to change until the switch hits a 0 value.
-This prevents noise or a bounce from triggering a key press.
+
+Certainly! Here's the corrected text for your GitHub readme.md:
+
+The actual mechanism for debouncing is incredibly simple. It involves an up counter that locks out the state change of a key until it has reached a threshold value. Compared to the original Nyan Keys FPGA design, which had an up and down counter, using an up-only counter allows for the design to have a smaller footprint. It also enables instant response to switch state changes as long as the debounce period has elapsed.
+
+After configuration, the FPGA resets all 8-bit counters (Ice40HX4K) to 0xff. When the counter is at ```0xff```, the state may be changed because that signals the debounce timer has completed. Once any key is pressed, the FPGA immediately changes that key's bit in the bit vector to represent the new state. Then, the counter is reset to ```0x00``` and will begin to increment with each clock cycle to the key's module. While the counter is not equal to ```0xff```, the state won't change, so any bouncing of the switch is ignored. After the timer reaches 0xff again, the state of the key can be changed instantly.
+
+The bit vector size is dependent on the number of keys on a keyboard; in the case of a 61-key, 60% board, the total number of bits needed is 61. However, since the SPI slave only reads out bytes, we have to use 8 bytes (64 bits). This bit vector is continuously written to block RAM, which is then addressed and read out directly by the SPI slave.
 
 ### FPGA Limits
 
@@ -69,5 +71,3 @@ This prevents noise or a bounce from triggering a key press.
 One of the major features that could be implemented at a later time would be the use of in memory per switch debounce counter thresholds.
 This means that instead of having a global state of all switches are debounced in at count value 8'bxxxxxxxx. The user could tune each switch
 to the lowest possible latency before bouncing occours. This would work extremely well for designs that have multiple switch types.
-
-## STM32 USB HID Interface
