@@ -169,7 +169,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
         if (rstn_g_i == 1'b0) begin
             key_clk_counter <= 18'b0;
             key_clk <= 1'b0;
-        end else if (key_clk_counter == 18'd777) begin         // just slightly more than 4ms/ @ 120MHz w/ 256 bitcounters
+        end else if (key_clk_counter == 18'd199) begin         // just slightly more than 4ms/ @ 120MHz w/ 256 bitcounters
             key_clk <= ~key_clk;                               // Toggle the output clock
             key_clk_counter <= 0;                              // Reset the counter
         end else begin
