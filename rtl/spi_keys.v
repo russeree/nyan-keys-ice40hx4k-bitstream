@@ -50,15 +50,14 @@ module spi_keys #(parameter NUM_KEYS = 61) (
 
     // Keyboard keys interface
     keys #(NUM_KEYS) keys_interface (
-        .clk_i   (key_clk),
-        .rst_n_i (rstn_g_i),
+        .clk_i   (clk_g_i),
         .keys_i  (keys_i_g),
         .keys_o  (keys)
     );
 
     // SPI module - slave mode
     nyan_spi_slave spi_slave (
-        .rst  (rstn_g_i),
+        .rst  (pll_locked),
         .clk  (clk_g_int_buf),
         .done (spi_rx_valid),
         .din  (spi_tx_byte),
@@ -116,10 +115,8 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     /**
      * Every clock cycle read from the address that has been locked in
      */
-    always @(posedge spi_rx_valid  or negedge rstn_g_i) begin
-        if (rstn_g_i == 1'b0) begin
-            spi_tx_byte <= 8'h00;
-        end else if (spi_cs_g_i) begin
+    always @(posedge clk_g_int_buf) begin
+        if (spi_cs_g_i) begin
             spi_tx_byte <= 8'h00;
         end else begin
             spi_tx_byte <= spi_synch_ram[spi_rx_byte];
@@ -159,21 +156,6 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     always @(posedge clk_g_int_buf) begin
         if (spi_rx_valid == 1'b0) begin
             spi_synch_ram[groups_select] <= keys_bram_mux_o_int;
-        end
-    end
-
-    /**
-     * 12Mhz to 800hz Frequency Divider - Used for input debouncing
-     */
-    always @(posedge clk_g_int_buf or negedge rstn_g_i) begin
-        if (rstn_g_i == 1'b0) begin
-            key_clk_counter <= 18'b0;
-            key_clk <= 1'b0;
-        end else if (key_clk_counter == 18'd199) begin         // just slightly more than 4ms/ @ 120MHz w/ 256 bitcounters
-            key_clk <= ~key_clk;                               // Toggle the output clock
-            key_clk_counter <= 0;                              // Reset the counter
-        end else begin
-            key_clk_counter <= key_clk_counter + 1;            // Increment the counter
         end
     end
 
