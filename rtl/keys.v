@@ -2,17 +2,16 @@ module keys #(parameter keys = 61) (
     input                  clk_i,
     input  wire [keys-1:0] keys_i,
     output reg  [keys-1:0] keys_o
-    );
+);
 
-    // each key is represented by a 7-bit register
-    reg [21:0] counter [keys-1:0];
+    reg [21:0]     counter    [keys-1:0];
 
     integer key;
 
-    // Debouncing Counter - Arm after pin change and counter high
+    // Debouncing logic
     always @(posedge clk_i) begin
         for (key = 0; key < keys; key = key + 1) begin
-            if (counter[key] == 22'd60000) begin
+            if (counter[key] >= 22'd60000) begin
                 if (keys_o[key] != keys_i[key]) begin
                     counter[key] <= 22'd0;
                     keys_o[key] <= keys_i[key];
