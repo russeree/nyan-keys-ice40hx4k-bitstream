@@ -2,7 +2,7 @@ module keys #(parameter keys = 61) (
     input                  clk_i,
     input  wire [keys-1:0] keys_i,
     output reg  [keys-1:0] keys_o
-);
+    );
 
     reg [21:0]     counter    [keys-1:0];
 
