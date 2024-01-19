@@ -8,10 +8,10 @@ module keys #(parameter keys = 61) (
 
     integer key;
 
-    // Debouncing logic
+    // Debouncing Logic
     always @(posedge clk_i) begin
         for (key = 0; key < keys; key = key + 1) begin
-            if (counter[key] >= 22'd60000) begin
+            if (counter[key] >= 22'd120000') begin
                 if (keys_o[key] != keys_i[key]) begin
                     counter[key] <= 22'd0;
                     keys_o[key] <= keys_i[key];
