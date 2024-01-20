@@ -79,7 +79,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
         SB_PLL40_CORE #(
             .FEEDBACK_PATH("SIMPLE"),
             .DIVR(4'b0000),       // DIVR =  0
-            .DIVF(7'b0111100),    // DIVF = 60
+            .DIVF(7'b0111001),    // DIVF = 57
             .DIVQ(3'b011),        // DIVQ =  3
             .FILTER_RANGE(3'b001) // FILTER_RANGE = 1
         ) g_pll (
