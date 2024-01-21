@@ -2,14 +2,10 @@
 set_io -pullup no   clk_g_i       21  #12 Mhz clk
 
 # Interface - SPI Slave Mode 1 (CPOL=0 CPHA=1)
-set_io -pullup no  rstn_g_i       26  #FPGA Reset
-set_io -pullup no  spi_cs_g_i     28  #SPI Slave Select
-set_io -pullup no  spi_mosi_g_i   29  #SDI (Master Out Slave In)
-set_io -pullup no  spi_miso_g_o   31  #SDO (Master In Slave Out)
-set_io -pullup no  spi_clk_g_i    32  #SCL (SPI Clock Line)
-
-# Status Signals
-set_io -pullup no  keys_valid_o   67  #Convert SPI SDO to a status signal
+set_io -pullup no  rstn_g_i       28  #FPGA Reset
+set_io -pullup no  spi_mosi_g_o   29  #SDO (Master Out Slave In)
+set_io -pullup no  spi_keys_ack   31  #SPI Keys IP Acknowledgement.
+set_io -pullup no  spi_clk_g_o    32  #SCL (SPI Clock Line)
 
 # Key Switches
 set_io -pullup yes keys_i_g[0]    1   #ESC
