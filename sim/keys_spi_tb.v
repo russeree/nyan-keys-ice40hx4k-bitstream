@@ -27,7 +27,7 @@ module tb_spi_keys;
 
     // Clock generation
     always begin
-        #8 clk_g_i = ~clk_g_i;
+        #42 clk_g_i = ~clk_g_i;
     end
 
     // Test sequence
@@ -41,15 +41,14 @@ module tb_spi_keys;
         $dumpfile("spi_keys_tb.vcd");
         $dumpvars(0, tb_spi_keys);
 
-        #10;
+        #10000;
         rstn_g_i = 0;
-        #100;
+        #1000;
         rstn_g_i = 1;
         #10000;
         // Random key press
-        // Random key press
         keys_i_g = $random;
-        #10;
+        #10000;
         keys_i_g = $random;
         #10000;
         keys_i_g = $random;
