@@ -109,10 +109,10 @@ module spi_keys #(parameter NUM_KEYS = 61) (
      *    latency but at the same time is frequent enough to feel responsive
      *    and 
      */
-    reg [19:0] refresh_counter;
-    localparam refresh_cnt = 20'd600000;
+    reg [22:0] refresh_counter;
+    localparam refresh_cnt = 22'd3900000;
 
-    always @(posedge clk_i or negedge rstn_g_i) begin
+    always @(posedge clk_g_int_buf or negedge rstn_g_i) begin
         if (!rstn_g_i) begin
             refresh_counter <= 1'b0;
         end else begin
