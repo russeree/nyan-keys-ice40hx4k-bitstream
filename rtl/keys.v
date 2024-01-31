@@ -16,7 +16,7 @@ module keys #(parameter keys = 61) (
                 counter[key] <= 1'b0;
                 keys_o <= keys_i;
             end else begin
-                if (counter[key] >= 22'd100) begin
+                if (counter[key] >= 22'd160000) begin
                     if (keys_o[key] != keys_i[key]) begin
                         counter[key] <= 22'd0;
                         keys_o[key] <= keys_i[key];

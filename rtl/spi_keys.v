@@ -43,7 +43,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     reg                     spi_tx_valid;
     reg                     spi_tx_lock;
 
-    // Keyboard keys interface - 92 MHZ
+    // Keyboard keys interface - 92 MHZ/
     keys #(NUM_KEYS) keys_interface (
         .clk_i   (clk_g_i),
         .rst_n_i (rstn_g_i),
@@ -78,13 +78,13 @@ module spi_keys #(parameter NUM_KEYS = 61) (
         assign pll_locked = rstn_g_i;
     `else
         /**
-         * Core clock generation - 120MHZ
+         * Core clock generation - 78MHZ
          */
         SB_PLL40_CORE #(
             .FEEDBACK_PATH("SIMPLE"),
             .DIVR(4'b0000),       // DIVR =  0
-            .DIVF(7'b0110011),    // DIVF = 63
-            .DIVQ(3'b011),        // DIVQ =  5
+            .DIVF(7'b0110011),    // DIVF = 51
+            .DIVQ(3'b011),        // DIVQ =  3
             .FILTER_RANGE(3'b001) // FILTER_RANGE = 1
         ) g_pll (
             .LOCK(pll_locked),
@@ -101,6 +101,38 @@ module spi_keys #(parameter NUM_KEYS = 61) (
         );
     `endif
 
+    /**
+     * Key Refresh Circuit
+     *  - This is the key refresh cycle, essentially it forces the
+     *    statemachine to obtain a new set of keys regardless of if a change
+     *    in the keys_o has occoured. This is infrequent enough to not impact
+     *    latency but at the same time is frequent enough to feel responsive
+     *    and 
+     */
+    reg [22:0] refresh_counter;
+    localparam refresh_cnt = 22'd3900000;
+
+    always @(posedge clk_g_int_buf or negedge rstn_g_i) begin
+        if (!rstn_g_i) begin
+            refresh_counter <= 1'b0;
+        end else begin
+            if ((refresh_counter >= refresh_cnt) || (keys_changed) || (!spi_tx_ready)) begin
+                refresh_counter <= 1'b0;
+            end else begin
+                refresh_counter <= refresh_counter + 1'b1;
+            end
+        end
+    end
+
+    /**
+     * MCU to Master; ACK signal
+     *  - This is meant to gate the spi connection between master and slave to
+     *    ensure the slave never desyncs from the master (Nyan Keys). This is very
+     *    important becuase of the fact that the slave does not have any
+     *    method to keep track of the order of bytes coming in. If a press is
+     *    received after a release or a release is never registered then this
+     *    will show up as a stuck key.
+     */
     reg spi_ack;
 
     always @(posedge clk_g_int_buf or negedge rstn_g_i) begin
@@ -116,8 +148,11 @@ module spi_keys #(parameter NUM_KEYS = 61) (
             end
         end
     end
+
     /**
-     * Store the previous state of the keys -> used for spi master TXs
+     * On keys change set the keys changed flag and set the keys previous
+     * state: Wait until keys cahnge again after the keys changed has been
+     * acked.
      */
     reg keys_changed;
 
@@ -127,7 +162,9 @@ module spi_keys #(parameter NUM_KEYS = 61) (
             keys_prv <= {NUM_KEYS{1'b1}};
         end else begin
             if (!keys_changed) begin
-                if(keys_prv != keys) begin
+                // We either wait for the keys to refresh or activate on the
+                // refresh counter
+                if((keys_prv != keys) || (refresh_counter == (refresh_cnt - 1'b1))) begin
                     keys_prv <= keys;
                     keys_changed <= 1'b1;
                 end
