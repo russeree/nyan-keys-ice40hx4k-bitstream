@@ -1,44 +1,34 @@
-# Nyan Keys - An FPGA Powered Keyboard
+# Nyan Keys - An FPGA Keyboard Bitstream
 
-An FPGA based mechanical keybaord controller design based around the Lattice ice40hx series of FPGA chips.
-
-## Why?
-
-The biggest question to be asked is why? The answer is simple. A quest to create the most performant keyboard
-on planet earth. The additional performance is extracted through four means.
-
- - Per key programmable debounce counters (8 bit)
- - Per key parallel input _All keys are parallel without a scanning matrix_
- - Ultra fast SPI based serialization (12.25Mhz Tested)
- - nKRO - Though standard now it's nice to have becuase of the parallel interface
-
-This design is targeted toward few primary groups.
-
- - __Gamers__ For the lowest possible latency.
- - __Power Users__ For the programability.
- - __Hobbyists__ For the hacks.
- - __Non standard layouts__ For users that need to be able to create a custom layout
+A Lattice ICE40HX4K parallel keys interface for mechanical keyboards with integrated debouncing cores per key. This IP 
+essentially performs the following functions 
+ 1. Consumes the state of every keys in parallel once per clock cycle. (12MHz)
+ 2. Keeps track of the key state changes and debouncing [eagerly](https://github.com/qmk/qmk_firmware/blob/master/docs/feature_debounce_type.md).
+ 3. Sends over state changes to the SPI slave as they occour.
+ 4. Sends over a state ever 50 milliseconds regardless.
 
 ## FPGA IP
 
-FPGA IP is designed to be build using [Yosys](https://github.com/YosysHQ/yosys) and [Nextpnr](https://github.com/YosysHQ/nextpnr). This parallel keys interface has been validated on the Lattice ICE40HX1K and ICE40HX4K 144TQFP FPGAs.
+FPGA IP is designed to be build using [Yosys](https://github.com/YosysHQ/yosys) and [Nextpnr](https://github.com/YosysHQ/nextpnr). This parallel keys interface has been validated on the Lattice ICE40HX4K 144TQFP FPGAs.
 The IP is designed and seperated into 3 main parts.
 
  - Key switch cores (keys.v)
- - SPI core (MODE 0) COPL=0, CPHA=0 (spi.v)
+ - SPI master core (MODE 0) COPL=0, CPHA=0 (spi.v)
  - Global glue logic (spi_keys.v)
 
 ### Key Switching Core
-Each key switch in the nyan keys physical design will generate one key switch 'core'. The key switch core is the programmable logic
-that is used to read the keys state and perform debouncing as well as produce an output state.
+Each key (switch) in the nyan keys physical design will generate one key switch 'core'. The key switch core is the programmable logic that is used to read the keys state and perform debouncing as well as produce an output state that is passed to a SPI slave device. This IP acts as the master.
 
 All mehcnial switches have some form of bounce to them. The term bounce is used to refer to the total time a singal takes
 to settle. _As a real world example when you press a Cherry MX Blue/Green switch it could take up to 5ms before the singal has
 stopped bouncing between high and low._ Removing debouncing logic on a keyboard would have the effect of the user seeing
 double key presses.
 
-In it's simplest form this design outputs a one hot vector that represents the states of each key as 0 or 1 (_high_ or _low_) and send that over a SPI slave interface to the masteter
-as often as it can be requested. Switches are considered active low and this design leverages the interal pull resistors that are available on the 
+In it's simplest form this design outputs a one hot vector that represents the states of each key as 0 or 1 (_high_ or _low_) and send that over a SPI interface as a master when either of the following conditions occours.
+
+ - The array of keys changes state and that keys debounce timer is not active 
+ - 50ms has passed since the last broadcast of a keys state.
+ 
 outputs of the Lattice Ice40hx series ICs.
 
  - __Key state__ - Represents the physical key. [Pressed/Released]
