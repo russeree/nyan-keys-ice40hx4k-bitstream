@@ -134,6 +134,7 @@ module spi_keys #(parameter NUM_KEYS = 61) (
      *    will show up as a stuck key.
      */
     reg spi_ack;
+
     always @(posedge clk_g_int_buf or negedge rstn_g_i) begin
         if (rstn_g_i == 1'b0) begin
             spi_ack <= 1'b0;
@@ -149,7 +150,9 @@ module spi_keys #(parameter NUM_KEYS = 61) (
     end
 
     /**
-     * Store the previous state of the keys -> used for spi master TXs
+     * On keys change set the keys changed flag and set the keys previous
+     * state: Wait until keys cahnge again after the keys changed has been
+     * acked.
      */
     reg keys_changed;
 
